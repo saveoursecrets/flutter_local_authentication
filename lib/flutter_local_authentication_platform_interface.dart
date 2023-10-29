@@ -44,7 +44,7 @@ abstract class FlutterLocalAuthenticationPlatform extends PlatformInterface {
   /// authenticate using their fingerprint, face, or other biometric methods
   /// supported by the device. If the user successfully authenticates, the method
   /// returns `true`. If authentication fails or is canceled, it returns `false`.
-  Future<bool> authenticate() {
+  Future<bool> authenticate({bool allowReuse = false}) {
     throw UnimplementedError('authenticate() has not been implemented.');
   }
 

@@ -47,7 +47,9 @@ public class FlutterLocalAuthenticationPlugin: NSObject, FlutterPlugin {
         case .authenticate:
             authenticate(with: authPolicy) { authenticated, error in
                 if let error = error {
-                    let flutterError = FlutterError(code: "authentication_error", message: error.localizedDescription, details: nil)
+                    let flutterError = FlutterError(
+                        code: "authentication_error",
+                        message: error.localizedDescription, details: nil)
                     result(flutterError)
                     return
                 }

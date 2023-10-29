@@ -20,7 +20,7 @@ struct LocalizationModel {
 
     static var `default` = LocalizationModel(
         dialogTitle: "",
-        reason: "Validate that you have access to this device.",
+        reason: "validate that you have access to this device",
         cancelButtonTitle: "Cancel"
     )
 

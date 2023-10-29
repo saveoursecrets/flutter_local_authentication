@@ -43,8 +43,8 @@ class MethodChannelFlutterLocalAuthentication
   ///
   /// Throws an exception if there's an issue with the authentication process.
   @override
-  Future<bool> authenticate() async {
-    return await methodChannel.invokeMethod<bool>('authenticate') ?? false;
+  Future<bool> authenticate({bool allowReuse = false}) async {
+    return await methodChannel.invokeMethod<bool>('authenticate', {'allowReuse': allowReuse}) ?? false;
   }
 
   /// Sets the allowable reuse duration for Touch ID authentication (iOS only).

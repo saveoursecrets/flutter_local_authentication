@@ -72,9 +72,10 @@ class FlutterLocalAuthentication {
   ///
   /// Note: This method may not be available on all platforms or versions of
   /// Flutter. Make sure to check for platform compatibility before using it.
-  Future<bool> authenticate() async {
+  Future<bool> authenticate({bool allowReuse = false}) async {
     final isAuthenticated =
-        await FlutterLocalAuthenticationPlatform.instance.authenticate();
+        await FlutterLocalAuthenticationPlatform.instance.authenticate(
+          allowReuse: allowReuse);
     if (isAuthenticated == true) {
       return true;
     } else {

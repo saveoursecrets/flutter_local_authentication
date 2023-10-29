@@ -40,16 +40,18 @@ public class FlutterLocalAuthenticationPlugin: NSObject, FlutterPlugin {
         }
         switch method {
         case .canAuthenticate:
-            let (supports, error) = supportsLocalAuthentication(with: .deviceOwnerAuthenticationWithBiometrics)
+            let (supports, error) = supportsLocalAuthentication(
+                with: .deviceOwnerAuthentication)
             result(supports && error == nil)
-        case .authenticate:
-            authenticate { autheticated, error in
+        case .authenticate(let allowReuse):
+            let authContext = allowReuse ? context : LAContext()
+            authenticate(authContext) { authenticated, error in
                 if let error = error {
                     let flutterError = FlutterError(code: "authentication_error", message: error.localizedDescription, details: nil)
                     result(flutterError)
                     return
                 }
-                result(autheticated)
+                result(authenticated)
             }
         case .setTouchIDAuthenticationAllowableReuseDuration(let duration):
             setTouchIDAuthenticationAllowableReuseDuration(duration)
@@ -79,8 +81,8 @@ public class FlutterLocalAuthenticationPlugin: NSObject, FlutterPlugin {
     /// - Parameters:
     ///   - policy: The authentication policy to use.
     ///   - callback: A callback to handle the authentication result.
-    fileprivate func authenticate(with policy: LAPolicy = .deviceOwnerAuthentication, callback: @escaping (Bool, Error?) -> Void) {
-        context.evaluatePolicy(policy, localizedReason: localizationModel.reason, reply: callback)
+    fileprivate func authenticate(_ context: LAContext, callback: @escaping (Bool, Error?) -> Void) {
+        context.evaluatePolicy(LAPolicy.deviceOwnerAuthentication, localizedReason: localizationModel.reason, reply: callback)
     }
 
     /// Sets the allowable reuse duration for Touch ID authentication.
