@@ -2,6 +2,8 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'flutter_local_authentication_method_channel.dart';
 
+import 'device_security_type.dart';
+
 /// An abstract platform interface for the Flutter Local Authentication plugin.
 ///
 /// This platform interface defines the methods that must be implemented by
@@ -80,5 +82,11 @@ abstract class FlutterLocalAuthenticationPlatform extends PlatformInterface {
       bool biometricsRequired) {
     throw UnimplementedError(
         'setBiometricsRequired() has not been implemented.');
+  }
+
+  /// Attempt to determine the security type of a device.
+  Future<DeviceSecurityType> getDeviceSecurityType() async {
+    throw UnimplementedError(
+        'getDeviceSecurityType() has not been implemented.');
   }
 }

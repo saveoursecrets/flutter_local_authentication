@@ -16,6 +16,7 @@ enum PluginMethod {
     case getTouchIDAuthenticationAllowableReuseDuration
     case setLocalizationModel(model: LocalizationModel?)
     case setBiometricsRequired(biometricsRequired: Bool)
+    case getDeviceSecurityType
 
     static func from(_ call: FlutterMethodCall) -> PluginMethod? {
         switch call.method {
@@ -38,6 +39,7 @@ enum PluginMethod {
             } else {
                 return nil
             }
+        case "getDeviceSecurityType": return .getDeviceSecurityType
         default:
             return nil
         }

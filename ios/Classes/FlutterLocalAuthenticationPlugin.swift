@@ -41,42 +41,45 @@ public class FlutterLocalAuthenticationPlugin: NSObject, FlutterPlugin {
             return result(FlutterMethodNotImplemented)
         }
         switch method {
-        case .canAuthenticate:
-            let (supports, error) = supportsLocalAuthentication(with: authPolicy)
-            result(supports && error == nil)
-        case .authenticate:
-            authenticate(with: authPolicy) { authenticated, error in
-                if let error = error {
-                    let flutterError = FlutterError(
-                        code: "authentication_error",
-                        message: error.localizedDescription, details: nil)
-                    result(flutterError)
-                    return
+            case .canAuthenticate:
+                let (supports, error) = supportsLocalAuthentication(with: authPolicy)
+                result(supports && error == nil)
+            case .authenticate:
+                authenticate(with: authPolicy) { authenticated, error in
+                    if let error = error {
+                        let flutterError = FlutterError(
+                            code: "authentication_error",
+                            message: error.localizedDescription, details: nil)
+                        result(flutterError)
+                        return
+                    }
+                    result(authenticated)
                 }
-                result(authenticated)
-            }
-        case .setTouchIDAuthenticationAllowableReuseDuration(let duration):
-            setTouchIDAuthenticationAllowableReuseDuration(duration)
-            return result(context.touchIDAuthenticationAllowableReuseDuration)
-        case .getTouchIDAuthenticationAllowableReuseDuration:
-            return result(context.touchIDAuthenticationAllowableReuseDuration)
-        case .setLocalizationModel(let model):
-            if let model {
-                localizationModel = model
-            }
-        case .setBiometricsRequired(let biometricsRequired):
-            setBiometricsRequired(biometricsRequired)
+            case .setTouchIDAuthenticationAllowableReuseDuration(let duration):
+                setTouchIDAuthenticationAllowableReuseDuration(duration)
+                return result(context.touchIDAuthenticationAllowableReuseDuration)
+            case .getTouchIDAuthenticationAllowableReuseDuration:
+                return result(context.touchIDAuthenticationAllowableReuseDuration)
+            case .setLocalizationModel(let model):
+                if let model {
+                    localizationModel = model
+                }
+            case .setBiometricsRequired(let biometricsRequired):
+                setBiometricsRequired(biometricsRequired)
+            case .getDeviceSecurityType:
+                return result(getDeviceSecurityType());
         }
     }
 
-    fileprivate func getBiometricType() -> String {
+    fileprivate func getDeviceSecurityType() -> String {
         let context = LAContext()
         var error: NSError?
         
         // Check if biometric authentication is available
         if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
             if #available(iOS 11.0, *) {
-                // iOS 11 and later support evaluating for multiple biometric types
+                // iOS 11 and later support evaluating for
+                // multiple biometric types
                 if context.canEvaluatePolicy(
                     .deviceOwnerAuthenticationWithBiometrics, error: &error) {
                     if context.biometryType == .faceID {
@@ -84,20 +87,21 @@ public class FlutterLocalAuthenticationPlugin: NSObject, FlutterPlugin {
                     } else if context.biometryType == .touchID {
                         return "touch"
                     } else {
-                        return "unknown-biometric"
+                        return "biometric"
                     }
                 }
             } else {
-                // On earlier iOS versions, you can only check for Touch ID
+                // On earlier iOS versions, can only check for Touch ID
                 if context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) {
                     return "touch"
                 }
             }
             
-            // If no biometric is available, the user is likely using a passcode
+            // If no biometric is available, the user
+            // is likely using a passcode
             return "passcode"
         } else {
-            // Biometric authentication is not available
+            // Device security is not enrolled
             return "none"
         }
     }

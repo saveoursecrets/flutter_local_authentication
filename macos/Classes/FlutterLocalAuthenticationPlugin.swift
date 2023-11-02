@@ -39,33 +39,35 @@ public class FlutterLocalAuthenticationPlugin: NSObject, FlutterPlugin {
             return result(FlutterMethodNotImplemented)
         }
         switch method {
-        case .canAuthenticate:
-            let (supports, error) = supportsLocalAuthentication(
-                with: .deviceOwnerAuthentication)
-            result(supports && error == nil)
-        case .authenticate(let allowReuse):
-            let authContext = allowReuse ? context : LAContext()
-            authenticate(authContext) { authenticated, error in
-                if let error = error {
-                    let flutterError = FlutterError(code: "authentication_error", message: error.localizedDescription, details: nil)
-                    result(flutterError)
-                    return
+            case .canAuthenticate:
+                let (supports, error) = supportsLocalAuthentication(
+                    with: .deviceOwnerAuthentication)
+                result(supports && error == nil)
+            case .authenticate(let allowReuse):
+                let authContext = allowReuse ? context : LAContext()
+                authenticate(authContext) { authenticated, error in
+                    if let error = error {
+                        let flutterError = FlutterError(code: "authentication_error", message: error.localizedDescription, details: nil)
+                        result(flutterError)
+                        return
+                    }
+                    result(authenticated)
                 }
-                result(authenticated)
-            }
-        case .setTouchIDAuthenticationAllowableReuseDuration(let duration):
-            setTouchIDAuthenticationAllowableReuseDuration(duration)
-            return result(context.touchIDAuthenticationAllowableReuseDuration)
-        case .getTouchIDAuthenticationAllowableReuseDuration:
-            return result(context.touchIDAuthenticationAllowableReuseDuration)
-        case .setLocalizationModel(let model):
-            if let model {
-                localizationModel = model
-            }
+            case .setTouchIDAuthenticationAllowableReuseDuration(let duration):
+                setTouchIDAuthenticationAllowableReuseDuration(duration)
+                return result(context.touchIDAuthenticationAllowableReuseDuration)
+            case .getTouchIDAuthenticationAllowableReuseDuration:
+                return result(context.touchIDAuthenticationAllowableReuseDuration)
+            case .setLocalizationModel(let model):
+                if let model {
+                    localizationModel = model
+                }
+            case .getDeviceSecurityType:
+                return result(getDeviceSecurityType());
         }
     }
 
-    fileprivate func getBiometricType() -> String {
+    fileprivate func getDeviceSecurityType() -> String {
         let context = LAContext()
         var error: NSError?
 
@@ -79,7 +81,7 @@ public class FlutterLocalAuthenticationPlugin: NSObject, FlutterPlugin {
                     } else if context.biometryType == .touchID {
                         return "touch"
                     } else {
-                        return "unknown-biometric"
+                        return "biometric"
                     }
                 }
             } else {
@@ -94,7 +96,7 @@ public class FlutterLocalAuthenticationPlugin: NSObject, FlutterPlugin {
             // likely using a passcode
             return "passcode"
         } else {
-            // Biometric authentication is not available
+            // Device security is not enrolled
             return "none"
         }
     }

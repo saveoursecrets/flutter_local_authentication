@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import 'flutter_local_authentication_platform_interface.dart';
 
+import 'device_security_type.dart';
+
 /// An implementation of [FlutterLocalAuthenticationPlatform] that uses method channels.
 ///
 /// Author: Ezequiel (Kimi) Aceto
@@ -107,5 +109,12 @@ class MethodChannelFlutterLocalAuthentication
   Future<void> setBiometricsRequired(
       bool biometricsRequired) async {
     await methodChannel.invokeMethod('setBiometricsRequired', {'biometricsRequired': biometricsRequired});
+  }
+
+  /// Attempt to determine the security type of a device.
+  Future<DeviceSecurityType> getDeviceSecurityType() async {
+    final String result = await methodChannel.invokeMethod('getDeviceSecurityType');
+    return DeviceSecurityType.values.firstWhere(
+      (item) => item.toString() == 'DeviceSecurityType.$result');
   }
 }

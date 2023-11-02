@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_local_authentication/localization_model.dart';
-
 import 'flutter_local_authentication_platform_interface.dart';
+
+import 'device_security_type.dart';
 
 /// A Flutter plugin for local biometric authentication.
 ///
@@ -192,5 +193,11 @@ class FlutterLocalAuthentication {
       return await FlutterLocalAuthenticationPlatform.instance
           .setBiometricsRequired(biometricsRequired);
     }
+  }
+  
+  /// Attempt to determine the security type of a device.
+  Future<DeviceSecurityType> getDeviceSecurityType() async {
+      return await FlutterLocalAuthenticationPlatform.instance
+          .getDeviceSecurityType();
   }
 }

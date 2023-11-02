@@ -26,7 +26,7 @@ class HomeWidget extends StatefulWidget {
 
 class _HomeWidgetState extends State<HomeWidget> {
   bool _canAuthenticate = false;
-  final _flutterLocalAuthenticationPlugin = FlutterLocalAuthentication();
+  final _plugin = FlutterLocalAuthentication();
 
   @override
   void initState() {
@@ -44,19 +44,25 @@ class _HomeWidgetState extends State<HomeWidget> {
         promptDialogReason: "reason for prompting biometric",
         cancelButtonTitle: "cancel"
     );
-    _flutterLocalAuthenticationPlugin.setLocalizationModel(localization);
+    _plugin.setLocalizationModel(localization);
 
     if (Platform.isIOS) {
-      _flutterLocalAuthenticationPlugin.setBiometricsRequired(false);
+      _plugin.setBiometricsRequired(false);
     }
   }
 
   Future<void> checkSupport() async {
     bool canAuthenticate;
     try {
+      
+      final deviceSecurityType = await _plugin
+        .getDeviceSecurityType();
+
+      print(deviceSecurityType);
+
       canAuthenticate =
-          await _flutterLocalAuthenticationPlugin.canAuthenticate();
-      await _flutterLocalAuthenticationPlugin
+          await _plugin.canAuthenticate();
+      await _plugin
           .setTouchIDAuthenticationAllowableReuseDuration(30);
     } on Exception catch (error) {
       debugPrint("Exception checking support. $error");
@@ -69,7 +75,7 @@ class _HomeWidgetState extends State<HomeWidget> {
   }
 
   void authenticate() async {
-    _flutterLocalAuthenticationPlugin.authenticate().then((authenticated) {
+    _plugin.authenticate().then((authenticated) {
       String result = 'Authenticated: $authenticated';
       debugPrint(result);
 
