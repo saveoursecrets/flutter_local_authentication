@@ -1,9 +1,11 @@
 package dev.eaceto.mobile.oss.flutter.flutter_local_authentication
 
+import android.content.Context
 import androidx.annotation.NonNull
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import android.app.KeyguardManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -25,12 +27,14 @@ import io.flutter.plugin.common.MethodChannel.Result
  */
 class FlutterLocalAuthenticationPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private lateinit var channel: MethodChannel
+    private lateinit var context: Context
     private var activity: FlutterFragmentActivity? = null
     private var localizationModel = LocalizationModel.default
 
     companion object {
         private const val CHANNEL = "flutter_local_authentication"
-        private const val allowedAuthenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG
+        private const val allowedAuthenticators =
+          BiometricManager.Authenticators.BIOMETRIC_STRONG
             .or(BiometricManager.Authenticators.BIOMETRIC_WEAK)
             .or(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
     }
@@ -44,6 +48,7 @@ class FlutterLocalAuthenticationPlugin : FlutterPlugin, MethodCallHandler, Activ
      */
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, CHANNEL)
+        context = flutterPluginBinding.applicationContext
     }
 
     /**
@@ -69,6 +74,8 @@ class FlutterLocalAuthenticationPlugin : FlutterPlugin, MethodCallHandler, Activ
             is PluginMethod.CanAuthenticate -> result.success(canAuthenticate())
             is PluginMethod.Authenticate -> authenticate(result)
             is PluginMethod.SetLocalizationModel -> setLocalizationModel(method.model)
+            is PluginMethod.GetDeviceSecurityType -> 
+              result.success(getDeviceSecurityType())
             else -> result.notImplemented()
         }
     }
@@ -122,6 +129,41 @@ class FlutterLocalAuthenticationPlugin : FlutterPlugin, MethodCallHandler, Activ
                 "FragmentActivity is null. ",
                 "Beware that a FlutterFragmentActivity is required instead of a FlutterActivity."
             )
+        }
+    }
+
+    private fun getDeviceSecurityType(): String {
+        val biometricManager = BiometricManager.from(activity!!)
+        val deviceAuthenticators =
+          BiometricManager.Authenticators.BIOMETRIC_STRONG
+            .or(BiometricManager.Authenticators.BIOMETRIC_WEAK)
+        return when (biometricManager.canAuthenticate(deviceAuthenticators)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> "biometric"
+            else -> getKeyguardSecurityType()
+        }
+    }
+
+    private fun getKeyguardSecurityType(): String {
+        val keyguardManager = context.getSystemService(
+            Context.KEYGUARD_SERVICE) as KeyguardManager
+        if (keyguardManager.isKeyguardSecure) {
+            if (keyguardManager.isKeyguardLocked) {
+                if (keyguardManager.isDeviceSecure) {
+                    // Device is using a secure lock screen 
+                    // method (PIN, Pattern, Password)
+                    return "passcode"
+                } else {
+                    // Device is using an insecure
+                    // lock screen (e.g., swipe or none)
+                    return "none"
+                }
+            } else {
+                // Lock screen is not locked (no security)
+                return "none"
+            }
+        } else {
+            // Lock screen is not set up
+            return "none"
         }
     }
 

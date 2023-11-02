@@ -17,6 +17,11 @@ sealed class PluginMethod {
     object Authenticate : PluginMethod()
 
     /**
+     * Check device security type.
+     */
+    object GetDeviceSecurityType : PluginMethod()
+
+    /**
      * Set the allowable reuse duration for Touch ID authentication (iOS/macOS only).
      *
      * @property duration The allowable reuse duration in seconds.
@@ -56,6 +61,7 @@ sealed class PluginMethod {
                     val model = LocalizationModel.from(call.arguments as? Map<String, Any>)
                     SetLocalizationModel(model)
                 }
+                "getDeviceSecurityType" -> GetDeviceSecurityType
                 else -> null
             }
         }
