@@ -4,6 +4,7 @@ import 'package:flutter_local_authentication/localization_model.dart';
 import 'flutter_local_authentication_platform_interface.dart';
 
 import 'device_security_type.dart';
+export 'device_security_type.dart';
 
 /// A Flutter plugin for local biometric authentication.
 ///
