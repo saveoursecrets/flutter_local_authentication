@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -113,8 +115,12 @@ class MethodChannelFlutterLocalAuthentication
 
   /// Attempt to determine the security type of a device.
   Future<DeviceSecurityType> getDeviceSecurityType() async {
-    final String result = await methodChannel.invokeMethod('getDeviceSecurityType');
-    return DeviceSecurityType.values.firstWhere(
-      (item) => item.toString() == 'DeviceSecurityType.$result');
+    if (Platform.isMacOS || Platform.isIOS || Platform.isAndroid) {
+      final String result = await methodChannel.invokeMethod('getDeviceSecurityType');
+      return DeviceSecurityType.values.firstWhere(
+        (item) => item.toString() == 'DeviceSecurityType.$result');
+    } else {
+      return DeviceSecurityType.unsupported;
+    }
   }
 }

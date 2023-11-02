@@ -14,4 +14,6 @@ enum DeviceSecurityType {
   biometric,
   /// Device security is not enrolled.
   none,
+  /// Platform does not support detecting security type.
+  unsupported,
 }
